@@ -1,0 +1,150 @@
+<project name="restrepo" default="build">
+
+
+    <property name="build.dir" value="build"/>
+    <property name="package.dir" value="package"/>
+    <property name="source.dir" value="src"/>
+    <property name="webcontent.dir" value="webcontent"/>
+
+    <property name="integration.test.build.dir" value="integration.test.build"/>
+    <property name="integration.test.src" value="test/integration"/>
+    <property name="integration.test.report.dir" value="integration.test.reports"/>
+    <property name="unit.test.src" value="test/unit"/>
+    <property name="unit.test.build.dir" value="unit.test.build"/>
+    <property name="unit.test.report.dir" value="unit.test.reports"/>
+
+    <property name="lib.dir" value="libs"/>
+    <property name="web.inf.dir" value="WEB-INF"/>
+    <property name="jetty.dir" value="jetty-6.1.26"/>
+
+    <property name="application.name" value="restrepo"/>
+
+    <path id="release.classpath">
+        <fileset dir="${lib.dir}/release" includes="**/*.jar"/>
+    </path>
+
+
+    <path id="test.classpath">
+        <path refid="release.classpath"/>
+        <fileset dir="${lib.dir}/test" includes="**/*.jar"/>
+        <pathelement path="tools.classpath"/>
+        <pathelement path="${build.dir}"/>
+        <pathelement path="${unit.test.build.dir}"/>
+        <pathelement path="${integration.test.build.dir}"/>
+    </path>
+
+
+    <path id="jetty.plugin.classpath">
+        <fileset dir="${lib.dir}/release" includes="*.jar"/>
+        <fileset dir="${jetty.dir}/lib" includes="**/*.jar"/>
+    </path>
+
+    <taskdef classpathref="jetty.plugin.classpath" resource="tasks.properties"/>
+
+    <macrodef name="unit.test.and.report">
+        <attribute name="type"/>
+        <attribute name="classpath"/>
+        <sequential>
+            <mkdir dir="${@{type}.test.report.dir}"/>
+            <junit haltonfailure="no" printsummary="on" fork="no" failureproperty="@{type}.tests.failed">
+                <formatter type="xml"/>
+                <classpath refid="@{classpath}"/>
+                <batchtest todir="${@{type}.test.report.dir}">
+                    <fileset dir="${@{type}.test.src}" includes="**/*Test.java"/>
+                    <fileset dir="${@{type}.test.src}" includes="**/*Tests.java"/>
+                </batchtest>
+            </junit>
+            <junitreport todir="${@{type}.test.report.dir}">
+                <fileset dir="${@{type}.test.report.dir}">
+                    <include name="TEST-*.xml"/>
+                </fileset>
+                <report format="frames" todir="${@{type}.test.report.dir}/html"/>
+            </junitreport>
+            <fail if="@{type}.tests.failed" message="@{type} tests failed"/>
+        </sequential>
+    </macrodef>
+
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete dir="${package.dir}"/>
+        <delete dir="${unit.test.build.dir}"/>
+        <delete dir="${unit.test.report.dir}"/>
+        <delete dir="${integration.test.build.dir}"/>
+        <delete dir="${integration.test.report.dir}"/>
+    </target>
+
+    <target name="bootstrap">
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${package.dir}"/>
+        <mkdir dir="${unit.test.build.dir}"/>
+        <mkdir dir="${integration.test.build.dir}"/>
+    </target>
+
+    <target name="compile">
+        <javac srcdir="${source.dir}" destdir="${build.dir}" classpathref="release.classpath"/>
+
+    </target>
+
+
+    <target name="compile.unittests">
+        <javac srcdir="${unit.test.src}" destdir="${unit.test.build.dir}" classpathref="test.classpath"/>
+    </target>
+
+    <target name="unittest" depends="compile.unittests">
+        <unit.test.and.report type="unit" classpath="test.classpath"/>
+    </target>
+
+
+    <target name="package">
+        <war destfile="${package.dir}/${application.name}.war" webxml="${web.inf.dir}/web.xml">
+            <fileset dir="${webcontent.dir}"/>
+            <lib dir="${lib.dir}/release"/>
+            <classes dir="${build.dir}"/>
+        </war>
+
+    </target>
+
+
+    <target name="jetty.start">
+        <java jar="${jetty.dir}/start.jar" dir="${jetty.dir}" fork="true" spawn="true"/>
+        <waitfor checkevery="100" checkeveryunit="millisecond" maxwait="5" maxwaitunit="second">
+            <and>
+                <socket port="8080" server="localhost"/>
+            </and>
+        </waitfor>
+    </target>
+
+    <target name="jetty.stop">
+        <java jar="${jetty.dir}/start.jar" dir="${jetty.dir}" fork="true">
+            <jvmarg value="-DSTOP.PORT=8079"/>
+            <jvmarg value="-DSTOP.KEY=secret"/>
+            <arg value="--stop"/>
+        </java>
+        <waitfor checkevery="100" checkeveryunit="millisecond" maxwait="5" maxwaitunit="second">
+            <not>
+                <socket port="8080" server="localhost"/>
+            </not>
+        </waitfor>
+    </target>
+
+
+    <target  name="deploy" depends="jetty.stop,copy.war,jetty.start"/>
+
+    <target name="copy.war">
+        <copy file="${package.dir}/${application.name}.war" todir="${jetty.dir}/webapps"/>
+    </target>
+
+
+    <target name="compile.integration.test">
+        <javac srcdir="${integration.test.src}" destdir="${integration.test.build.dir}" classpathref="test.classpath"/>
+    </target>
+
+    <target name="integrationtest" depends="compile.integration.test">
+        <unit.test.and.report type="integration" classpath="test.classpath"/>
+    </target>
+
+
+    <target name="build" depends="clean,bootstrap,compile,unittest,package,deploy,integrationtest"/>
+
+</project>
