@@ -1,3 +1,5 @@
 *.war
 *.log
 *.iws
+*build/*
+*reports/*
