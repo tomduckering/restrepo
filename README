@@ -1,0 +1,5 @@
+Restrepo hopes to be a sensible binary repository for the rest of the world. We shall see.
+
+To build on Mac OS X:
+1) Checkout the source.
+2) Run ./run.sh
