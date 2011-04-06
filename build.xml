@@ -1,4 +1,4 @@
-<project name="restrepo" default="build">
+<project name="restrepo" default="build" xmlns:ivy="antlib:org.apache.ivy.ant" >
 
 
     <property name="build.dir" value="build"/>
@@ -81,10 +81,15 @@
         <mkdir dir="${integration.test.build.dir}"/>
     </target>
 
-    <target name="compile">
+    <target name="compile" depends="fetch.dependencies">
         <javac srcdir="${source.dir}" destdir="${build.dir}" classpathref="release.classpath" includeantruntime="false"/>
 
     </target>
+
+	<target name="fetch.dependencies">
+		<ivy:settings file="ivysettings.xml"/>
+		<ivy:retrieve pattern="${lib.dir}/[conf]/[artifact]-[revision].[ext]" />
+	</target>
 
 
     <target name="compile.unittests">
