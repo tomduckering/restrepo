@@ -3,3 +3,4 @@
 *.iws
 *build/*
 *reports/*
+libs/**/*.jar
