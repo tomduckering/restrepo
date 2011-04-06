@@ -15,7 +15,7 @@
 
     <property name="lib.dir" value="libs"/>
     <property name="web.inf.dir" value="WEB-INF"/>
-    <property name="jetty.dir" value="jetty-6.1.26"/>
+    <property name="jetty.dir" value="tools/jetty-6.1.26"/>
 
     <property name="application.name" value="restrepo"/>
 
@@ -82,13 +82,13 @@
     </target>
 
     <target name="compile">
-        <javac srcdir="${source.dir}" destdir="${build.dir}" classpathref="release.classpath"/>
+        <javac srcdir="${source.dir}" destdir="${build.dir}" classpathref="release.classpath" includeantruntime="false"/>
 
     </target>
 
 
     <target name="compile.unittests">
-        <javac srcdir="${unit.test.src}" destdir="${unit.test.build.dir}" classpathref="test.classpath"/>
+        <javac srcdir="${unit.test.src}" destdir="${unit.test.build.dir}" classpathref="test.classpath" includeantruntime="false"/>
     </target>
 
     <target name="unittest" depends="compile.unittests">
@@ -137,7 +137,7 @@
 
 
     <target name="compile.integration.test">
-        <javac srcdir="${integration.test.src}" destdir="${integration.test.build.dir}" classpathref="test.classpath"/>
+        <javac srcdir="${integration.test.src}" destdir="${integration.test.build.dir}" classpathref="test.classpath" includeantruntime="false"/>
     </target>
 
     <target name="integrationtest" depends="compile.integration.test">
