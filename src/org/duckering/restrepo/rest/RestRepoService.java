@@ -23,8 +23,8 @@ public class RestRepoService {
 
     @Path("/artifact")
     @POST
-    @Consumes("multipart/form-data")
-    @Produces("application/vnd.restrepo.artifact")
+    @Consumes("application/x-www-form-urlencoded")
+    @Produces("text/plain")
     public String doPost(@FormDataParam("data") FileUploadForm form) {
         return "blaadfadf";
 
