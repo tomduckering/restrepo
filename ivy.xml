@@ -1,0 +1,24 @@
+<ivy-module version="2.0">
+    <info organisation="org.duckering" module="restrepo"/>
+    <configurations>
+        <conf name="test"/>
+		<conf name="release"/>
+    </configurations>
+    <dependencies>
+		<dependency org="junit" name="junit" rev="4.8.2" conf="test->default"/>
+		<dependency org="asm" name="asm" rev="3.1" conf="release->default"/>
+		<dependency org="org.codehaus.jackson" name="jackson-core-asl" rev="1.7.1" conf="release->default"/>
+		<dependency org="org.codehaus.jackson" name="jackson-mapper-asl" rev="1.7.1" conf="release->default"/>
+		<dependency org="org.codehaus.jackson" name="jackson-jaxrs" rev="1.7.1" conf="release->default"/>
+		<dependency org="org.codehaus.jackson" name="jackson-xc" rev="1.7.1" conf="release->default"/>
+		<dependency org="org.codehaus.jettison" name="jettison" rev="1.1" conf="release->default"/>
+		<dependency org="com.sun.jersey" name="jersey-core" rev="1.6" conf="release->default"/>
+		<dependency org="com.sun.jersey" name="jersey-json" rev="1.6" conf="release->default"/>
+		<dependency org="com.sun.jersey" name="jersey-client" rev="1.6" conf="release->default"/>
+		<dependency org="com.sun.jersey" name="jersey-server" rev="1.6" conf="release->default"/>
+		<dependency org="com.sun.jersey.contribs" name="jersey-multipart" rev="1.6" conf="release->default"/>
+		<dependency org="org.eclipse.jdt" name="core" rev="3.1.1" conf="release->default"/>
+		<dependency org="org.mortbay.jetty" name="jetty-ant" rev="6.1.26" conf="release->default"/>
+		<dependency org="javax.ws.rs" name="jsr311-api" rev="1.1.1" conf="release->default"/>
+    </dependencies>
+</ivy-module>
