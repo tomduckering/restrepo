@@ -4,3 +4,5 @@
 *build/*
 *reports/*
 libs/**/*.jar
+out/*
+logs
