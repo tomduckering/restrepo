@@ -20,5 +20,6 @@
 		<dependency org="org.eclipse.jdt" name="core" rev="3.1.1" conf="release->default"/>
 		<dependency org="org.mortbay.jetty" name="jetty-ant" rev="6.1.26" conf="release->default"/>
 		<dependency org="javax.ws.rs" name="jsr311-api" rev="1.1.1" conf="release->default"/>
+        <!-- TODO see if documentation configurations are avaiable too-->
     </dependencies>
 </ivy-module>

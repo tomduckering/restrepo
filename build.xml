@@ -112,7 +112,12 @@
 
 
     <target name="jetty.start">
-        <java jar="${jetty.dir}/start.jar" dir="${jetty.dir}" fork="true" spawn="true"/>
+        <java jar="${jetty.dir}/start.jar" dir="${jetty.dir}" fork="true" spawn="true">
+            <jvmarg value="-DSTOP.PORT=8079"/>
+            <jvmarg value="-DSTOP.KEY=secret"/>
+            <arg value="etc/jetty-logging.xml"/>
+            <arg value="etc/jetty.xml"/>
+        </java>
         <waitfor checkevery="100" checkeveryunit="millisecond" maxwait="5" maxwaitunit="second">
             <and>
                 <socket port="8080" server="localhost"/>

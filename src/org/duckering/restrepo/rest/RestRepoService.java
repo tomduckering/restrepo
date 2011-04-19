@@ -1,41 +1,35 @@
 package org.duckering.restrepo.rest;
 
-import com.sun.jersey.multipart.FormDataParam;
+import org.duckering.restrepo.Artifact;
+import org.duckering.restrepo.ArtifactRepository;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
-import javax.xml.bind.JAXBElement;
-import javax.xml.ws.Response;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
-import static javax.xml.ws.Response.*;
-
-/**
- * Created by IntelliJ IDEA.
- * User: tduckerin
- * Date: Apr 5, 2011
- * Time: 11:05:47 PM
- * To change this template use File | Settings | File Templates.
- */
-@Path("/restrepo")
+@Path("/artifact")
 public class RestRepoService {
 
+    private @Context UriInfo uriInfo;
+    private ArtifactRepository artifactRepository;
 
-
-    @Path("/artifact")
-    @POST
-    @Consumes("application/x-www-form-urlencoded")
-    @Produces("text/plain")
-    public String doPost(@FormDataParam("data") FileUploadForm form) {
-        return "blaadfadf";
-
+    public RestRepoService(ArtifactRepository artifactRepository) {
+        this.artifactRepository = artifactRepository;
     }
 
-
-    @Path("/artifact/{artifactId}")
+    @Path("/{artifactId}")
     @GET
-    @Produces("text/plain")
-    public String doGet(@PathParam("artifactId") String artifactId) {
-        return "You requested artifact "+ artifactId;
+    @Produces("application/vnd.restrepo+xml")
+    public Response doGet(@PathParam("artifactId") int artifactId) {
+
+        Artifact artifact = artifactRepository.get(artifactId);
+        
+        return Response.ok().entity(artifact).build();
     }
 
+    @PUT
+    public Response doPut() {
+        return Response.ok().build();
+    }
 }

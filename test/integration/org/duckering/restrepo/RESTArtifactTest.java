@@ -12,16 +12,10 @@ import org.junit.Test;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by IntelliJ IDEA.
- * User: tduckerin
- * Date: Apr 6, 2011
- * Time: 12:17:16 AM
- * To change this template use File | Settings | File Templates.
- */
 public class RESTArtifactTest {
 
     @Test
@@ -37,7 +31,7 @@ public class RESTArtifactTest {
         assertEquals("You requested artifact 123",output);
     }
 
-        @Test
+    @Test
     public void testArtifactPost() {
 
         ClientConfig clientConfig = new DefaultClientConfig();
@@ -53,6 +47,6 @@ public class RESTArtifactTest {
 
         ClientResponse response = webRes.path("artifact").type("application/x-www-form-urlencoded").accept(MediaType.TEXT_PLAIN).post(ClientResponse.class,formData);
 
-        assertEquals("You requested artifact 123",response.toString());
+        assertEquals(Response.Status.CREATED,response.getStatus());
     }
 }
