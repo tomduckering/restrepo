@@ -5,16 +5,19 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
-import org.junit.Assert;
-import static org.junit.Assert.*;
+import com.sun.jersey.multipart.BodyPart;
+import com.sun.jersey.multipart.MultiPart;
+import com.sun.jersey.multipart.MultiPartMediaTypes;
+import org.duckering.restrepo.rest.Data;
+import org.duckering.restrepo.rest.DataWriter;
+import org.duckering.restrepo.rest.Dictionary;
 import org.junit.Test;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import java.util.HashMap;
-import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 public class RESTArtifactTest {
 
@@ -24,29 +27,40 @@ public class RESTArtifactTest {
         ClientConfig clientConfig = new DefaultClientConfig();
         Client client = Client.create(clientConfig);
 
-        WebResource webRes = client.resource("http://localhost:8080/restrepo/restrepo");
+        WebResource webRes = client.resource("http://localhost:8080/restrepo");
 
-        String output = webRes.path("artifact/123").accept(MediaType.TEXT_PLAIN).get(String.class);
+        ClientResponse response = webRes.path("artifact/1").get(ClientResponse.class);
 
-        assertEquals("You requested artifact 123",output);
+        assertEquals("response code", Response.Status.OK.getStatusCode(), response.getStatus());
     }
 
     @Test
     public void testArtifactPost() {
 
         ClientConfig clientConfig = new DefaultClientConfig();
+        clientConfig.getClasses().add(DataWriter.class);
         Client client = Client.create(clientConfig);
 
-        WebResource webRes = client.resource("http://localhost:8080/restrepo/restrepo");
+        WebResource webRes = client.resource("http://localhost:8080/restrepo");
 
-            Map<String,String> facts = new HashMap<String,String>();
-            facts.put("name","value");
+        Data data = new Data();
+        data.data = new byte[]{1, 2, 3};
 
-            MultivaluedMap formData = new MultivaluedMapImpl();
-            formData.add("name","value");
+        Dictionary dictionary = new Dictionary();
+        dictionary.put("bungle", "muncher");
 
-        ClientResponse response = webRes.path("artifact").type("application/x-www-form-urlencoded").accept(MediaType.TEXT_PLAIN).post(ClientResponse.class,formData);
+        MultiPart multiPart = new MultiPart().
+                bodyPart(new BodyPart(data, MediaType.APPLICATION_OCTET_STREAM_TYPE)).
+                bodyPart(new BodyPart(dictionary, MediaType.APPLICATION_XML_TYPE));
 
-        assertEquals(Response.Status.CREATED,response.getStatus());
+        ClientResponse response = webRes.path("artifact").type(MultiPartMediaTypes.MULTIPART_MIXED_TYPE).put(ClientResponse.class, multiPart);
+        MultivaluedMap<String, String> headers = response.getHeaders();
+
+        for (String header : headers.keySet()) {
+
+            System.err.println(header+" : " + headers.get(header));
+        }
+
+        assertEquals("Creation response code", Response.Status.CREATED.getStatusCode(), response.getStatus());
     }
 }

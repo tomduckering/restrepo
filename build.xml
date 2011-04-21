@@ -153,6 +153,11 @@
     </target>
 
     <target name="integrationtest" depends="compile.integration.test">
+                <waitfor checkevery="100" checkeveryunit="millisecond" maxwait="5" maxwaitunit="second">
+            <and>
+                <socket port="8080" server="localhost"/>
+            </and>
+        </waitfor>
         <unit.test.and.report type="integration" classpath="test.classpath"/>
     </target>
 

@@ -1,19 +1,16 @@
 package org.duckering.restrepo.rest;
 
-import org.apache.cxf.jaxrs.ext.multipart.Attachment;
-import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
-import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
-import org.duckering.restrepo.Artifact;
-import org.duckering.restrepo.ArtifactRepository;
+import com.sun.jersey.multipart.BodyPart;
+import com.sun.jersey.multipart.MultiPartMediaTypes;
+import com.sun.jersey.multipart.MultiPart;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 @Path("/artifact")
 public class RestRepoService {
@@ -23,8 +20,15 @@ public class RestRepoService {
     UriInfo uriInfo;
     private ArtifactRepository artifactRepository;
 
+    public RestRepoService() {
+        this.artifactRepository = new ArtifactRepository();
+         artifactRepository.put(new Dictionary());
+         artifactRepository.put(new Dictionary());
+    }
+
     public RestRepoService(ArtifactRepository artifactRepository) {
         this.artifactRepository = artifactRepository;
+
     }
 
     @Path("/{artifactId}")
@@ -32,23 +36,43 @@ public class RestRepoService {
     @Produces("application/vnd.restrepo+xml")
     public Response doGet(@PathParam("artifactId") int artifactId) {
 
-        Artifact artifact = artifactRepository.get(artifactId);
+        Dictionary dictionary = artifactRepository.get(artifactId);
 
-        return Response.ok().entity(artifact).build();
+        dictionary.put("ab","cd");
+
+        return Response.ok().entity(dictionary).build();
     }
 
     @PUT
-    @Produces("application/vnd.restrepo+xml")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response doPut(MultipartBody multipartBody) {
-        Attachment a = multipartBody.getAttachment("file");
-        ContentDisposition cd = a.getContentDisposition();
-        try {
-            InputStream is = a.getDataHandler().getInputStream();
-        } catch (IOException e) {
+    //@Produces("application/vnd.restrepo+xml")
+    @Consumes(MultiPartMediaTypes.MULTIPART_MIXED)
+//    public Response doPut(@Multipart(value = "data", type = "application/octet-stream") Data data,
+//                          @Multipart(value = "dictionary", type = "application/xml") Dictionary dictionary) {
+//
+    public Response doPut(MultiPart multipart) {
+        Data data = null;
+        Dictionary dictionary = null;
+        for(BodyPart bodyPart:multipart.getBodyParts()) {
+            if (bodyPart.getMediaType().equals(MediaType.APPLICATION_OCTET_STREAM_TYPE)) {
+                data = bodyPart.getEntityAs(Data.class);
+            }
+
+            if (bodyPart.getMediaType().equals(MediaType.APPLICATION_XML_TYPE)) {
+                dictionary = bodyPart.getEntityAs(Dictionary.class);
+
+            }
+        }
+
+        if (data == null || dictionary == null) {
             return Response.serverError().build();
         }
 
-        return Response.ok().build();
+        int newArtifactId = artifactRepository.put(dictionary);
+
+        try {
+            return Response.created(new URI(uriInfo.getAbsolutePath()+"/"+newArtifactId)).build();
+        } catch (URISyntaxException e) {
+            return Response.serverError().build();
+        }
     }
 }

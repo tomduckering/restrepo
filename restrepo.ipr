@@ -4,7 +4,7 @@
     <defaultAnt bundledAnt="true" />
     <buildFile url="file://$PROJECT_DIR$/build.xml">
       <additionalClassPath />
-      <antReference name="Skype Apache Ant version 1.8.0" />
+      <antReference bundledAnt="true" />
       <customJdkName value="" />
       <maximumHeapSize value="128" />
       <maximumStackSize value="2" />

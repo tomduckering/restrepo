@@ -1,10 +1,12 @@
 package org.duckering.restrepo;
 
+import org.duckering.restrepo.rest.Dictionary;
+
 public class TestArtifactBuilder {
 
-    public static Artifact buildBasicArtifact() {
-       Artifact artifact = new Artifact();
-       artifact.put("name","value");
-       return artifact;
+    public static Dictionary buildBasicArtifact() {
+       Dictionary dictionary = new Dictionary();
+       dictionary.put("name","value");
+       return dictionary;
     }
 }
